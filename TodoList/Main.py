@@ -27,17 +27,26 @@ import uuid
 #         print("3. Back to Main Menu")
 
 
+# Начальный пустой словарь для всех задач пользователя.
 save_todo = {"all_tasks": {}}
 
 
 def newEmptyJsonFile():
+    """
+    Создание пустого файла JSON, в который будем сохранять информацию о задачах пользователя. \n
+    Также очищает все задачи.
+    """
+
     with open("save\\tasks\\save.json", "w") as json_file:
         json.dump(save_todo, json_file, indent=2)
 
 
 def generateTasks():
-    # Создание 100 фейковых задач:
-    # Создание файла чисто для отладки некоторых функций:
+    """
+    Создание 100 фейковых пустых задач. \n
+    Создание файла чисто для отладки некоторых функций:
+    """
+
     for i in range(0, 100):
         save_todo["all_tasks"][f"task_id: {i}"] = {
             "task_name": "",
@@ -53,6 +62,9 @@ def generateTasks():
 
 
 def ViewAllTasks():
+    """
+    Вывод на экран всех задач пользователя.
+    """
     # Чтение файла:
     with open("save\\tasks\\save.json", "r") as json_save_file:
         read_save_file = json.load(json_save_file)
@@ -65,6 +77,9 @@ def ViewAllTasks():
 
 
 def AddTask():
+    """
+    Добавление новой задачи.
+    """
     # Чтение файла:
     with open("save\\tasks\\save.json", "r") as json_file:
         read_save_file = json.load(json_file)
@@ -107,24 +122,45 @@ def AddTask():
 
 
 def UpdateTask():
+    """
+    Функция еще не реализована. \n
+    Обновление задания и его полей.
+    """
+    pass
+
+
+def SearchTask():
+    """
+    Функция еще не реализована. \n
+    Поиск задания по его имени, а так же поиск всех заданий по какому-либо критерию.
+    """
     pass
 
 
 def DeleteTask():
+    """
+    Удаление задания и его полей.
+    """
+    # Чтение файла:
     with open("save\\tasks\\save.json", "r") as json_file:
         read_save_file = json.load(json_file)
 
     task_id = int(input("Enter the task ID to delete: "))
 
+    # Удаление задачи по её уникальному идентификатору.
+    # В будущем добавится удаление задачи по её имени, а так же удаление всех задач.
     read_save_file["all_tasks"].pop(f"task_id: {task_id}")
 
+    # Сохранение всех изменений в файле:
     with open("save\\tasks\\save.json", "w") as json_file:
         json.dump(read_save_file, json_file, indent=2)
 
 
 def MainMenu():
+    """
+    Главное меню программы.
+    """
     while True:
-        # Main Menu
         print("\nTodo List Menu:")
         print("1. View All Tasks")
         print("2. Add Task")
@@ -155,8 +191,11 @@ def MainMenu():
 
 
 def main():
+    # Две функции для отладки:
     newEmptyJsonFile()
     generateTasks()
+
+    # Главное меню программы:
     MainMenu()
 
 
