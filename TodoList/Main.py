@@ -20,7 +20,7 @@ DEFAULT_TASK = {
 
 
 class TaskManager:
-    """Класс приложения TODO LIST IN TERMINAL."""
+    """Класс приложения TODO LIST IN CONSOLE."""
 
     # Конструктор класса.
     def __init__(self):
@@ -33,7 +33,7 @@ class TaskManager:
         try:
             # Создаём директорию
             SAVE_DIR.mkdir(parents=True, exist_ok=True)
-            # Если файла нет, создаём новый
+            # Если файла нет, создаём новый.
             if not SAVE_FILE.exists():
                 self._save_to_file()
         except Exception as e:
@@ -60,13 +60,20 @@ class TaskManager:
         """Просмотр всех задач."""
         try:
             self._load_from_file()
+            # Проверка на наличие задач в списке.
+            # Если нет, то выводится сообщение.
             if not self.tasks["all_tasks"]:
-                print("Tasks list is empty.")
+                print("\nTasks list is empty.")
                 return
 
+            # Количество задач в списке.
             print("\nCount of tasks: ", len(self.tasks["all_tasks"]))
+            # Вывод на экран всех задач.
+            # task_id = ключ в словаре. task_data = значение.
             for task_id, task_data in self.tasks["all_tasks"].items():
                 print(f"\nTask ID: {task_id}")
+                # Замена "task_" на "" и заглавная буква значения после "_".
+                # Ключ и значение в словаре через for key, value.
                 for key, value in task_data.items():
                     print(f"{key.replace("task_", "").capitalize()}: {value}")
         except Exception as e:
@@ -81,9 +88,11 @@ class TaskManager:
             print("\nAdding new task:")
             # Временный словарь для хранения новых данных.
             new_task = {}
+            # Для каждого ключа в словаре DEFAULT_TASK запрашиваем ввод данных.
             for field in DEFAULT_TASK:
                 new_task[field] = input(f"Enter {field.replace("task_", "")}: ")
 
+            # Добавляем новые данные в словарь задачи.
             self.tasks["all_tasks"][f"task_id: {task_id}"] = new_task
             self._save_to_file()
             print("Task added successfully.")
@@ -96,18 +105,31 @@ class TaskManager:
         try:
             self._load_from_file()
             self.view_all_tasks()
+
             print("\nUpdating a task:")
-            task_id = input("Enter the ID of the task you want to update: ")
+            # Ввод только id в виде числа без приписки task_id: .
+            # Пользователю не нужно вводить "task_id: ".
+            task_id = str(
+                "task_id: "
+                + input(
+                    "Enter the ID of the task you want to delete(not 'task_id: ', only number): "
+                )
+            )
+            # Проверка на наличие задачи с таким id.
+            # Если нет, то выводится сообщение.
             if task_id not in self.tasks["all_tasks"]:
                 print("Task id not found.")
                 return
 
             print("\nCurrent task data:")
             for key, value in self.tasks["all_tasks"][task_id].items():
+                # Замена "task_" на "" и заглавная буква значения после "_".
+                # Ключ и значение в словаре через for key, value.
                 print(f"{key.replace('task_', '').capitalize()}: {value}")
 
             print("\nEnter the new data for the task:")
             for field in DEFAULT_TASK:
+                # Замена "task_" на "" и заглавная буква значения после "_".
                 new_value = input(
                     f"Enter new {field.replace('task_', '').capitalize()}: "
                 )
@@ -122,14 +144,96 @@ class TaskManager:
     def delete_task(self):
         """Удаление существующей задачи."""
         try:
-            pass
+            print("\nDeleting Menu:")
+            print("1. Delete All Tasks")
+            print("2. Delete Single Task")
+            print("3. Back to Main Menu")
+
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                self.clear_all_tasks()
+            elif choice == "2":
+                print("\nSingle Task Delete:")
+                print("1. Delete by ID")
+                print("2. Delete by Name")
+                print("3. Back to Main Menu")
+
+                choice = input("Enter your choice: ")
+
+                result = {}
+                if choice == "1":
+                    self._load_from_file()
+                    self.view_all_tasks()
+
+                    print("\nDeleting a task:")
+                    # Ввод только id в виде числа без приписки task_id: .
+                    # Пользователю не нужно вводить "task_id: ".
+                    task_id = str(
+                        "task_id: "
+                        + input(
+                            "Enter the ID of the task you want to delete(not 'task_id: ', only number): "
+                        )
+                    )
+
+                    # Проверка на наличие задачи с таким id.
+                    # Если нет, то выводится сообщение.
+                    if task_id not in self.tasks["all_tasks"]:
+                        print("Task id not found.")
+                        return
+
+                    print("\nCurrent task data:")
+                    for key, value in self.tasks["all_tasks"][task_id].items():
+                        # Замена "task_" на "" и заглавная буква значения после "_".
+                        # Ключ и значение в словаре через for key, value.
+                        print(f"{key.replace('task_', '').capitalize()}: {value}")
+
+                    del self.tasks["all_tasks"][task_id]
+                    self._save_to_file()
+                    print("\nTask deleted successfully.")
+                elif choice == "2":
+                    self._load_from_file()
+                    self.view_all_tasks()
+
+                    # Проверка на пустоту словаря с задачами.
+                    if self.tasks["all_tasks"] == {}:
+                        print("There are no tasks.")
+                        return
+
+                    print("\nDeleting a task:")
+                    # Ввод имени задачи для поиска.
+                    task_name = str(
+                        input("Enter the name of the task you want to delete: ")
+                    )
+                    # Проверка на наличие задачи с таким именем и вычисление его id.
+                    result = {
+                        id_: task
+                        for id_, task in self.tasks["all_tasks"].items()
+                        if task_name in task["task_name"].lower()
+                    }
+
+                    # Если есть такие задачи, то удаляются все совпадения.
+                    if result:
+                        for i in result:
+                            if i in self.tasks["all_tasks"]:
+                                del self.tasks["all_tasks"][i]
+                        print("\nTask deleted successfully.")
+                        self._save_to_file()
+                    else:
+                        print("No task found with the given name.")
+            elif choice == "3":
+                print("Backing to Main Menu...")
+                return
+            else:
+                print("Invalid choice.")
+                return
         except Exception as e:
             print(f"Error deleting a task: {e}")
 
     def search_task(self):
         """Поиск задачи по id."""
         try:
-            pass
+            print("In development!")
         except Exception as e:
             print(f"Error searching a task: {e}")
 
@@ -153,7 +257,7 @@ class TaskManager:
     def clear_all_tasks(self):
         """Удаление всех задач."""
         try:
-            confirm = input("You are sure? This delete ALL tasks! (y/N): ")
+            confirm = input("\nYou are sure? This delete ALL tasks! (y/N): ")
             if confirm.lower() == "y":
                 self.tasks["all_tasks"] = {}
                 self._save_to_file()
@@ -175,11 +279,10 @@ def main_menu():
         print("1. View All Tasks")
         print("2. Add Task")
         print("3. Update Task")
-        print("4. Delete Task")
+        print("4. Delete Task Menu")
         print("5. Search Task")
         print("6. Generate Test Tasks")
-        print("7. Clear All Tasks")
-        print("8. Exit")
+        print("7. Exit")
 
         choice = input("\nEnter your choice: ")
 
@@ -197,8 +300,6 @@ def main_menu():
             count = input("\nHow many tasks should I generate? (default 10): ")
             manager.generate_test_tasks(int(count) if count.isdigit() else 10)
         elif choice == "7":
-            manager.clear_all_tasks()
-        elif choice == "8":
             print("\nExiting the program...")
             break
         else:
