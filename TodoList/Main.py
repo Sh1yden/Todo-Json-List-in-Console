@@ -37,7 +37,7 @@ class TaskManager:
             if not SAVE_FILE.exists():
                 self._save_to_file()
         except Exception as e:
-            print(f"File initialization error: {e}")
+            print(f"File initialization ❌error❌: {e}")
 
     def _load_from_file(self):
         """Загрузка данных из файла."""
@@ -45,16 +45,16 @@ class TaskManager:
             with open(SAVE_FILE, "r") as f:
                 self.tasks = json.load(f)
         except Exception as e:
-            print(f"Error loading data from a file: {e}")
+            print(f"❌Error❌ loading data from a file: {e}")
 
     def _save_to_file(self):
         """Сохранение данных в файл."""
         try:
             with open(SAVE_FILE, "w") as f:
                 # ensure_ascii=False для корректной записи русских символов.
-                json.dump(self.tasks, f, indent=2, ensure_ascii=False)
+                json.dump(self.tasks, f, indent=2)  # , ensure_ascii=False)
         except Exception as e:
-            print(f"Error when saving data to a file: {e}")
+            print(f"❌Error❌ when saving data to a file: {e}")
 
     def view_all_tasks(self):
         """Просмотр всех задач."""
@@ -63,7 +63,7 @@ class TaskManager:
             # Проверка на наличие задач в списке.
             # Если нет, то выводится сообщение.
             if not self.tasks["all_tasks"]:
-                print("\nTasks list is empty.")
+                print("\nTasks list is empty💔.")
                 return
 
             # Количество задач в списке.
@@ -77,7 +77,7 @@ class TaskManager:
                 for key, value in task_data.items():
                     print(f"{key.replace("task_", "").capitalize()}: {value}")
         except Exception as e:
-            print(f"Error when viewing data from a file: {e}")
+            print(f"❌Error❌ when viewing data from a file: {e}")
 
     def add_task(self):
         """Добавление новой задачи."""
@@ -92,13 +92,19 @@ class TaskManager:
             for field in DEFAULT_TASK:
                 new_task[field] = input(f"Enter {field.replace("task_", "")}: ")
 
-            # Добавляем новые данные в словарь задачи.
-            self.tasks["all_tasks"][f"task_id: {task_id}"] = new_task
-            self._save_to_file()
-            print("Task added successfully.")
+            print("\nCurrent task data:")
+            for key, value in new_task.items():
+                print(f"{key.replace("task_", "").capitalize()}: {value}")
 
+            if str(input("\nYou are sure? (y/N): ")).lower() == "y":
+                # Добавляем новые данные в словарь задачи.
+                self.tasks["all_tasks"][f"task_id: {task_id}"] = new_task
+                self._save_to_file()
+                print("Task added ✔️successfully✔️.")
+            else:
+                print("Task addition ❌canceled❌.")
         except Exception as e:
-            print(f"Error adding a task: {e}")
+            print(f"❌Error❌ adding a task: {e}")
 
     def update_task(self):
         """Обновление существующей задачи."""
@@ -112,7 +118,7 @@ class TaskManager:
             task_id = str(
                 "task_id: "
                 + input(
-                    "Enter the ID of the task you want to delete(not 'task_id: ', only number): "
+                    "Enter the ID of the task you want to 🗑️delete🗑️(not 'task_id: ', only number): "
                 )
             )
             # Проверка на наличие задачи с таким id.
@@ -137,16 +143,16 @@ class TaskManager:
                     self.tasks["all_tasks"][task_id][field] = new_value
 
             self._save_to_file()
-            print("\nTask updated successfully.")
+            print("\nTask updated ✔️successfully✔️.")
         except Exception as e:
-            print(f"Error updating a task: {e}")
+            print(f"❌Error❌ updating a task: {e}")
 
     def delete_task(self):
         """Удаление существующей задачи."""
         try:
-            print("\nDeleting Menu:")
-            print("1. Delete All Tasks")
-            print("2. Delete Single Task")
+            print("\n🗑️Deleting Menu:")
+            print("1. 🗑️Delete All Tasks")
+            print("2. 🗑️Delete Single Task")
             print("3. Back to Main Menu")
 
             choice = input("Enter your choice: ")
@@ -155,8 +161,8 @@ class TaskManager:
                 self.clear_all_tasks()
             elif choice == "2":
                 print("\nSingle Task Delete:")
-                print("1. Delete by ID")
-                print("2. Delete by Name")
+                print("1. 🗑️Delete by ID")
+                print("2. 🗑️Delete by Name")
                 print("3. Back to Main Menu")
 
                 choice = input("Enter your choice: ")
@@ -172,7 +178,7 @@ class TaskManager:
                     task_id = str(
                         "task_id: "
                         + input(
-                            "Enter the ID of the task you want to delete(not 'task_id: ', only number): "
+                            "Enter the ID of the task you want to 🗑️delete🗑️(not 'task_id: ', only number): "
                         )
                     )
 
@@ -190,7 +196,7 @@ class TaskManager:
 
                     del self.tasks["all_tasks"][task_id]
                     self._save_to_file()
-                    print("\nTask deleted successfully.")
+                    print("\nTask 🗑️deleted🗑️ ✔️successfully✔️.")
                 elif choice == "2":
                     self._load_from_file()
                     self.view_all_tasks()
@@ -203,8 +209,8 @@ class TaskManager:
                     print("\nDeleting a task:")
                     # Ввод имени задачи для поиска.
                     task_name = str(
-                        input("Enter the name of the task you want to delete: ")
-                    )
+                        input("Enter the name of the task you want to 🗑️delete🗑️: ")
+                    ).lower()
                     # Проверка на наличие задачи с таким именем и вычисление его id.
                     result = {
                         id_: task
@@ -217,7 +223,7 @@ class TaskManager:
                         for i in result:
                             if i in self.tasks["all_tasks"]:
                                 del self.tasks["all_tasks"][i]
-                        print("\nTask deleted successfully.")
+                        print("\nTask 🗑️deleted🗑️ ✔️successfully✔️.")
                         self._save_to_file()
                     else:
                         print("No task found with the given name.")
@@ -228,14 +234,82 @@ class TaskManager:
                 print("Invalid choice.")
                 return
         except Exception as e:
-            print(f"Error deleting a task: {e}")
+            print(f"❌Error❌ deleting a task: {e}")
+
+    def clear_all_tasks(self):
+        """Удаление всех задач."""
+        try:
+            if str(input("\nYou are sure? (y/N): ")).lower() == "y":
+                self.tasks["all_tasks"] = {}
+                self._save_to_file()
+                print("All tasks have been ✔️successfully✔️ 🗑️deleted🗑️.")
+            else:
+                print("Task deletion canceled.")
+        except Exception as e:
+            print(f"❌Error❌ deleting all tasks: {e}")
 
     def search_task(self):
         """Поиск задачи по id."""
         try:
-            print("In development!")
+            # print("In development!")
+            self._load_from_file()
+            print("\n📝Searching a Task Menu:")
+            print("1. 📝Search by ID")
+            print("2. 📝Search by Name")
+            print("3. 📝Search by Status")
+            print("4. Back to Main Menu")
+
+            choice = input("Enter your choice: ")
+
+            result = {}
+            if choice == "1":
+                # Ввод только id в виде числа без приписки task_id: .
+                # Пользователю не нужно вводить "task_id: ".
+                task_id = str(
+                    "task_id: "
+                    + input(
+                        "Enter the ID of the task you want to 📝search📝(not 'task_id: ', only number): "
+                    )
+                )
+                if task_id in self.tasks["all_tasks"]:
+                    result[task_id] = self.tasks["all_tasks"][task_id]
+            elif choice == "2":
+                # Ввод имени задачи для поиска.
+                task_name = str(
+                    input("Enter the name of the task you want to 📝search📝: ")
+                ).lower()
+                result = {
+                    id_: task
+                    for id_, task in self.tasks["all_tasks"].items()
+                    if task_name in task["task_name"].lower()
+                }
+            elif choice == "3":
+                task_status = input(
+                    "Enter the status of the task you want to 📝search📝: "
+                ).lower()
+                result = {
+                    id_: task
+                    for id_, task in self.tasks["all_tasks"].items()
+                    if task_status in task["task_status"].lower()
+                }
+            elif choice == "4":
+                print("Backing to Main Menu...")
+                return
+            else:
+                print("Invalid choice.")
+                return
+
+            if not result:
+                print("No tasks found.")
+                return
+
+            print(f"📝🔎Search Results: {len(result)} task(s) found.")
+            for task_id, task_data in result.items():
+                print(f"\nTask ID: {task_id}")
+                for key, value in task_data.items():
+                    print(f"{key.replace('task_', '').capitalize()}: {value}")
         except Exception as e:
-            print(f"Error searching a task: {e}")
+            print(f"❌Error❌ searching a task: {e}")
 
     def generate_test_tasks(self, count: int = 10):
         """Генерация тестовых задач (для отладки)."""
@@ -252,36 +326,23 @@ class TaskManager:
             self._save_to_file()
             print(f"Generated {count} test tasks.")
         except Exception as e:
-            print(f"Error when generating test tasks: {e}")
-
-    def clear_all_tasks(self):
-        """Удаление всех задач."""
-        try:
-            confirm = input("\nYou are sure? This delete ALL tasks! (y/N): ")
-            if confirm.lower() == "y":
-                self.tasks["all_tasks"] = {}
-                self._save_to_file()
-                print("All tasks have been successfully deleted.")
-            else:
-                print("Task deletion canceled.")
-        except Exception as e:
-            print(f"Error deleting all tasks: {e}")
+            print(f"❌Error❌ when generating test tasks: {e}")
 
 
 def main_menu():
     manager = TaskManager()
 
     while True:
-        print("\n" + "=" * 20)
-        print("TODO LIST IN TERMINAL")
-        print("=" * 20)
-        print("Todo List Menu:")
-        print("1. View All Tasks")
-        print("2. Add Task")
-        print("3. Update Task")
-        print("4. Delete Task Menu")
-        print("5. Search Task")
-        print("6. Generate Test Tasks")
+        print("\n" + "☰" * 20)
+        print("TODO 📃LIST IN TERMINAL")
+        print("☰" * 20)
+        print("Todo 📃List Menu:")
+        print("1. 👀View All Tasks")
+        print("2. ✒️Add Task")
+        print("3. 🔄Update Task")
+        print("4. 🗑️Delete Task Menu")
+        print("5. 🔍Search Task")
+        print("6. 🎰Generate Test Tasks")
         print("7. Exit")
 
         choice = input("\nEnter your choice: ")
@@ -300,10 +361,13 @@ def main_menu():
             count = input("\nHow many tasks should I generate? (default 10): ")
             manager.generate_test_tasks(int(count) if count.isdigit() else 10)
         elif choice == "7":
-            print("\nExiting the program...")
-            break
+            if str(input("\nYou are sure? (y/N): ")).lower() == "y":
+                print("\nExiting the program...")
+                break
+            else:
+                print("Returning to the main menu...")
         else:
-            print("\nWrong choice. Try again.")
+            print("\n❌Wrong choice❌. Try again.")
             return
 
 

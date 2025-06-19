@@ -1,3 +1,36 @@
 {
-  "all_tasks": {}
+  "all_tasks": {
+    "task_id: a3352d3b-e8a1-4fab-8858-afa17b2c35ec": {
+      "task_name": "\u0410\u0431\u043e\u0431\u0430",
+      "task_description": "\u0433\u0433",
+      "task_status": "\u043b\u0438\u0432\u0430\u044e",
+      "task_create_date": "20",
+      "task_priority": "\u043e\u0447\u0435\u043d\u044c ",
+      "task_deadline": "2026"
+    },
+    "task_id: 7033ced2-7195-463e-99de-0e6581d03705": {
+      "task_name": "1",
+      "task_description": "2",
+      "task_status": "3",
+      "task_create_date": "4",
+      "task_priority": "5",
+      "task_deadline": "6"
+    },
+    "task_id: 49bd54e0-9d04-4b29-ad71-e8bcfda877d2": {
+      "task_name": "1",
+      "task_description": "2",
+      "task_status": "3",
+      "task_create_date": "44",
+      "task_priority": "5",
+      "task_deadline": "6"
+    },
+    "task_id: 854b78dc-d239-400a-a69d-264bed8ff745": {
+      "task_name": "1",
+      "task_description": "313",
+      "task_status": "23",
+      "task_create_date": "\u0440\u0443\u0441\u0441\u043a\u043e\u0433\u043e \u043d\u0430\u0432\u0430\u043b\u0438\u043c",
+      "task_priority": "123",
+      "task_deadline": "4"
+    }
+  }
 }
