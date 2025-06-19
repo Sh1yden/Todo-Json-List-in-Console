@@ -1,203 +1,210 @@
+# Импорт нужных библиотек.
 import json
-import os
 from random import randint
-import uuid
+import os
+from pathlib import Path
+from uuid import uuid4
 
-# Стандартная структура базы данных для моего TODO List:
-# save_todo = {
-#     "all_tasks": {
-#         "task_id: 0": {
-#             "task_name": "",
-#             "task_description": "",
-#             "task_date": "",
-#             "task_status": "",
-#             "task_priority": "",
-#             "task_deadline": "",
-#         }
-#     }
-# }
-
-
-# Идея для следующего обновления:
-# Создание меню для всех подменю:
-# while True:
-#         print("\nDelete Menu: ")
-#         print("1. Delete All Tasks")
-#         print("2. Delete Single Task")
-#         print("3. Back to Main Menu")
+# Константы
+SAVE_DIR = Path("save/tasks")
+SAVE_FILE = SAVE_DIR / "save.json"
+DEFAULT_FILE = {"all_tasks": {}}
+DEFAULT_TASK = {
+    "task_name": "",
+    "task_description": "",
+    "task_status": "",
+    "task_create_date": "",
+    "task_priority": "",
+    "task_deadline": "",
+}
 
 
-# Начальный пустой словарь для всех задач пользователя.
-save_todo = {"all_tasks": {}}
+class TaskManager:
+    """Класс приложения TODO LIST IN TERMINAL."""
+
+    # Конструктор класса.
+    def __init__(self):
+        # Это словарь для хранения всех задач.
+        self.tasks = {"all_tasks": {}}
+        self._initialize_files()
+
+    def _initialize_files(self):
+        """Инициализация файлов и директорий, если они не существуют."""
+        try:
+            # Создаём директорию
+            SAVE_DIR.mkdir(parents=True, exist_ok=True)
+            # Если файла нет, создаём новый
+            if not SAVE_FILE.exists():
+                self._save_to_file()
+        except Exception as e:
+            print(f"File initialization error: {e}")
+
+    def _load_from_file(self):
+        """Загрузка данных из файла."""
+        try:
+            with open(SAVE_FILE, "r") as f:
+                self.tasks = json.load(f)
+        except Exception as e:
+            print(f"Error loading data from a file: {e}")
+
+    def _save_to_file(self):
+        """Сохранение данных в файл."""
+        try:
+            with open(SAVE_FILE, "w") as f:
+                # ensure_ascii=False для корректной записи русских символов.
+                json.dump(self.tasks, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"Error when saving data to a file: {e}")
+
+    def view_all_tasks(self):
+        """Просмотр всех задач."""
+        try:
+            self._load_from_file()
+            if not self.tasks["all_tasks"]:
+                print("Tasks list is empty.")
+                return
+
+            print("\nCount of tasks: ", len(self.tasks["all_tasks"]))
+            for task_id, task_data in self.tasks["all_tasks"].items():
+                print(f"\nTask ID: {task_id}")
+                for key, value in task_data.items():
+                    print(f"{key.replace("task_", "").capitalize()}: {value}")
+        except Exception as e:
+            print(f"Error when viewing data from a file: {e}")
+
+    def add_task(self):
+        """Добавление новой задачи."""
+        try:
+            self._load_from_file()
+            task_id = str(uuid4())
+
+            print("\nAdding new task:")
+            # Временный словарь для хранения новых данных.
+            new_task = {}
+            for field in DEFAULT_TASK:
+                new_task[field] = input(f"Enter {field.replace("task_", "")}: ")
+
+            self.tasks["all_tasks"][f"task_id: {task_id}"] = new_task
+            self._save_to_file()
+            print("Task added successfully.")
+
+        except Exception as e:
+            print(f"Error adding a task: {e}")
+
+    def update_task(self):
+        """Обновление существующей задачи."""
+        try:
+            self._load_from_file()
+            self.view_all_tasks()
+            print("\nUpdating a task:")
+            task_id = input("Enter the ID of the task you want to update: ")
+            if task_id not in self.tasks["all_tasks"]:
+                print("Task id not found.")
+                return
+
+            print("\nCurrent task data:")
+            for key, value in self.tasks["all_tasks"][task_id].items():
+                print(f"{key.replace('task_', '').capitalize()}: {value}")
+
+            print("\nEnter the new data for the task:")
+            for field in DEFAULT_TASK:
+                new_value = input(
+                    f"Enter new {field.replace('task_', '').capitalize()}: "
+                )
+                if new_value:
+                    self.tasks["all_tasks"][task_id][field] = new_value
+
+            self._save_to_file()
+            print("\nTask updated successfully.")
+        except Exception as e:
+            print(f"Error updating a task: {e}")
+
+    def delete_task(self):
+        """Удаление существующей задачи."""
+        try:
+            pass
+        except Exception as e:
+            print(f"Error deleting a task: {e}")
+
+    def search_task(self):
+        """Поиск задачи по id."""
+        try:
+            pass
+        except Exception as e:
+            print(f"Error searching a task: {e}")
+
+    def generate_test_tasks(self, count: int = 10):
+        """Генерация тестовых задач (для отладки)."""
+        try:
+            # Генерация тестовых задач с использованием DEFAULT_TASK.
+            for i in range(count):
+                task_id = str(uuid4())
+                # Прикольное использование ** для распаковки словаря DEFAULT_TASK.
+                self.tasks["all_tasks"][f"task_id: {task_id}"] = {
+                    **DEFAULT_TASK,
+                    "task_name": f"Test task {randint(1, 10000)}",
+                    "task_status": "test",
+                }
+            self._save_to_file()
+            print(f"Generated {count} test tasks.")
+        except Exception as e:
+            print(f"Error when generating test tasks: {e}")
+
+    def clear_all_tasks(self):
+        """Удаление всех задач."""
+        try:
+            confirm = input("You are sure? This delete ALL tasks! (y/N): ")
+            if confirm.lower() == "y":
+                self.tasks["all_tasks"] = {}
+                self._save_to_file()
+                print("All tasks have been successfully deleted.")
+            else:
+                print("Task deletion canceled.")
+        except Exception as e:
+            print(f"Error deleting all tasks: {e}")
 
 
-def newEmptyJsonFile():
-    """
-    Создание пустого файла JSON, в который будем сохранять информацию о задачах пользователя. \n
-    Также очищает все задачи.
-    """
+def main_menu():
+    manager = TaskManager()
 
-    with open("save\\tasks\\save.json", "w") as json_file:
-        json.dump(save_todo, json_file, indent=2)
-
-
-def generateTasks():
-    """
-    Создание 100 фейковых пустых задач. \n
-    Создание файла чисто для отладки некоторых функций:
-    """
-
-    for i in range(0, 100):
-        save_todo["all_tasks"][f"task_id: {i}"] = {
-            "task_name": "",
-            "task_description": "",
-            "task_status": "",
-            "task_date": "",
-            "task_priority": "",
-            "task_deadline": "",
-        }
-
-    with open("save\\tasks\\save.json", "w") as json_file:
-        json.dump(save_todo, json_file, indent=2)
-
-
-def ViewAllTasks():
-    """
-    Вывод на экран всех задач пользователя.
-    """
-    # Чтение файла:
-    with open("save\\tasks\\save.json", "r") as json_save_file:
-        read_save_file = json.load(json_save_file)
-
-        print("Total tasks: ", len(read_save_file["all_tasks"]))
-
-        # Вывод на экран всех задач по одной строке:
-        for i in range(len(read_save_file["all_tasks"])):
-            print(read_save_file["all_tasks"][f"task_id: {i}"])
-
-
-def AddTask():
-    """
-    Добавление новой задачи.
-    """
-    # Чтение файла:
-    with open("save\\tasks\\save.json", "r") as json_file:
-        read_save_file = json.load(json_file)
-
-    # Создание уникального идентификатора для каждой задачи:
-    task_id = uuid.uuid4()
-
-    # Создание задания и его полей:
-    read_save_file["all_tasks"].update({f"task_id: {task_id}": {}})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_name": ""})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_description": ""})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_date": ""})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_status": ""})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_priority": ""})
-    read_save_file["all_tasks"][f"task_id: {task_id}"].update({"task_deadline": ""})
-
-    # Заполнение полей задания:
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_name"] = str(
-        input("Enter the name of the task: ")
-    )
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_description"] = str(
-        input("Enter the description of the task: ")
-    )
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_status"] = str(
-        input("Enter the status of the task: ")
-    )
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_date"] = str(
-        input("Enter the date of the task: ")
-    )
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_priority"] = str(
-        input("Enter the priority of the task: ")
-    )
-    read_save_file["all_tasks"][f"task_id: {task_id}"]["task_deadline"] = str(
-        input("Enter the deadline of the task: ")
-    )
-
-    # Сохранение всех изменений в файле:
-    with open("save\\tasks\\save.json", "w") as json_file:
-        json.dump(read_save_file, json_file, indent=2)
-
-
-def UpdateTask():
-    """
-    Функция еще не реализована. \n
-    Обновление задания и его полей.
-    """
-    pass
-
-
-def SearchTask():
-    """
-    Функция еще не реализована. \n
-    Поиск задания по его имени, а так же поиск всех заданий по какому-либо критерию.
-    """
-    pass
-
-
-def DeleteTask():
-    """
-    Удаление задания и его полей.
-    """
-    # Чтение файла:
-    with open("save\\tasks\\save.json", "r") as json_file:
-        read_save_file = json.load(json_file)
-
-    task_id = int(input("Enter the task ID to delete: "))
-
-    # Удаление задачи по её уникальному идентификатору.
-    # В будущем добавится удаление задачи по её имени, а так же удаление всех задач.
-    read_save_file["all_tasks"].pop(f"task_id: {task_id}")
-
-    # Сохранение всех изменений в файле:
-    with open("save\\tasks\\save.json", "w") as json_file:
-        json.dump(read_save_file, json_file, indent=2)
-
-
-def MainMenu():
-    """
-    Главное меню программы.
-    """
     while True:
-        print("\nTodo List Menu:")
+        print("\n" + "=" * 20)
+        print("TODO LIST IN TERMINAL")
+        print("=" * 20)
+        print("Todo List Menu:")
         print("1. View All Tasks")
         print("2. Add Task")
         print("3. Update Task")
         print("4. Delete Task")
         print("5. Search Task")
-        print("6. Exit")
+        print("6. Generate Test Tasks")
+        print("7. Clear All Tasks")
+        print("8. Exit")
 
-        choice = int(input("\nEnter your choice: "))
+        choice = input("\nEnter your choice: ")
 
-        if choice == 1:
-            ViewAllTasks()
-
-        elif choice == 2:
-            AddTask()
-
-        elif choice == 3:
-            pass
-
-        elif choice == 4:
-            DeleteTask()
-
-        elif choice == 5:
-            pass
-
-        elif choice == 6:
+        if choice == "1":
+            manager.view_all_tasks()
+        elif choice == "2":
+            manager.add_task()
+        elif choice == "3":
+            manager.update_task()
+        elif choice == "4":
+            manager.delete_task()
+        elif choice == "5":
+            manager.search_task()
+        elif choice == "6":
+            count = input("\nHow many tasks should I generate? (default 10): ")
+            manager.generate_test_tasks(int(count) if count.isdigit() else 10)
+        elif choice == "7":
+            manager.clear_all_tasks()
+        elif choice == "8":
+            print("\nExiting the program...")
             break
-
-
-def main():
-    # Две функции для отладки:
-    newEmptyJsonFile()
-    generateTasks()
-
-    # Главное меню программы:
-    MainMenu()
+        else:
+            print("\nWrong choice. Try again.")
+            return
 
 
 if __name__ == "__main__":
-    main()
+    main_menu()
